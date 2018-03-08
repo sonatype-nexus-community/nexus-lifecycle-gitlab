@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Copyright (c) 2018-present Sonatype, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+scan_output=${1:-"evaluation.out"}
+token='PRIVATE-TOKEN: '${GITLAB_KEY}
+api_url="https://gitlab.com/api/v4/projects/${CI_PROJECT_PATH//\//%2F}"
+
+report_url=$(awk '/The detailed report can be/ { print $NF }' ${scan_output})
+stage=$(awk '/ Stage:/ { print $NF }' ${scan_output})
+# [[ "${stage}" == "stage-release" ]] && stage="stage"
+
+# Add report url
+[[ "$(awk '/Policy Action:/ { print $NF }' ${scan_output})" == "Failure" ]] && state="failed" || state="success"
+attrs="state=${state}"
+attrs+="&name=Lifecycle:%20${stage}"
+attrs+="&description=View%20Nexus%20Lifecycle%20Report%20with%20full%20bill%20of%20materials%20and%20vulnerability%20results"
+attrs+="&target_url="${report_url}
+curl --request POST --header "${token}" "${api_url}/statuses/${CI_BUILD_REF}?${attrs}"
+
+# Create a new issue for each policy
+awk '/^Policy\(/ { sub(/Policy\(/, ""); sub(/\).*$/, ""); print }' ${scan_output} | \
+    while read policy; do
+        policy_weight=5
+        read -r -d '' description << EOF
+        <a href="${report_url}">View Nexus Lifecycle report for your '${stage}' stage</a>
+        <br />
+        <a href="//gitlab.com/${CI_PROJECT_PATH}/pipelines/${CI_PIPELINE_ID}">Go to pipeline</a>
+        <h2>Affected components</h2>
+        <ul>
+        $(sed -n '
+            /^Policy('${policy}'/,/\]\]$/{
+                /[[:space:]]*Component(/s;.*displayName=\([^,]*\),.*;<li>\1</li>;p;
+            }
+            ' ${scan_output})
+        </ul>
+EOF
+
+        description="$(echo -n ${description} | curl -Gso /dev/null -w %{url_effective} --data-urlencode @- "" | cut -c 3-)"
+
+        attrs="title=Nexus%20Lifecycle%20Policy%20violated:%20${policy}"
+        attrs+="&description=${description}"
+        attrs+="&confidential=true"
+        attrs+="&weight=${policy_weight}"
+        attrs+="&labels=nexus_lifecycle,nexus_policy_violation"
+        curl --request POST --header "${token}" "${api_url}/issues?${attrs}"
+    done

@@ -1,0 +1,18 @@
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:1.44.0
+  IMAGE_LATEST_TAG: $CI_REGISTRY_IMAGE:latest
+
+build-docker:
+  stage: build
+  image: docker:git
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker tag $IMAGE_TAG $IMAGE_LATEST_TAG
+    - docker push $IMAGE_TAG
+    - docker push $IMAGE_LATEST_TAG
+  only:
+    - tags
