@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.gitlab.com/hokiegeek/docker-nexus-iq-cli:1.44.0
+ARG iq_cli_version
+
+FROM registry.gitlab.com/hokiegeek/docker-nexus-iq-cli:${iq_cli_version}
 
 COPY gitlab /usr/local/bin/
 
