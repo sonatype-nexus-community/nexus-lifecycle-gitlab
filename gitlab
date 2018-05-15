@@ -14,13 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-scan_output=${1:-"evaluation.out"}
+usage() {
+    echo "USAGE: ${0##*/} [--output FILENAME] [--no-issues]"
+}
+
+while (( $# > 0 )); do
+    case $1 in
+        --no-issues) show_issues=false ;;
+        --output) scan_output=$2; shift ;;
+        --help) usage; exit 0 ;;
+        *)
+            {
+                echo "ERROR: Do not recognize argument: $1"
+                usage
+            } >&2
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 token='PRIVATE-TOKEN: '${GITLAB_KEY}
 api_url="https://gitlab.com/api/v4/projects/${CI_PROJECT_PATH//\//%2F}"
 
-report_url=$(awk '/The detailed report can be/ { print $NF }' ${scan_output})
+report_url=$(awk '/The detailed report can be/ { print $NF }' ${scan_output:="evaluation.out"})
 stage=$(awk '/ Stage:/ { print $NF }' ${scan_output})
-# [[ "${stage}" == "stage-release" ]] && stage="stage"
 
 # Add report url
 [[ "$(awk '/Policy Action:/ { print $NF }' ${scan_output})" == "Failure" ]] && state="failed" || state="success"
@@ -31,7 +49,7 @@ attrs+="&target_url="${report_url}
 curl --request POST --header "${token}" "${api_url}/statuses/${CI_BUILD_REF}?${attrs}"
 
 # Create a new issue for each policy
-awk '/^Policy\(/ { sub(/Policy\(/, ""); sub(/\).*$/, ""); print }' ${scan_output} | \
+${show_issues:-true} && awk '/^Policy\(/ { sub(/Policy\(/, ""); sub(/\).*$/, ""); print }' ${scan_output} | \
     while read policy; do
         policy_weight=5
         read -r -d '' description << EOF
