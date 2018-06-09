@@ -1,13 +1,13 @@
 ## nexus-lifecycle-gitlab
 
-This docker image is designed to be used as a Gitlab Runner for performing Sonatype Lifecycle scans
+This docker image is designed to be used as a Gitlab Runner for performing [Sonatype Lifecycle](https://www.sonatype.com/nexus-lifecycle "Would you like to know more?") scans
 
 ## Example runner
 
 ```yaml
 build-evaluate:
     stage: test
-    image: registry.gitlab.com/hokiegeek/nexus-lifecycle-gitlab:latest
+    image: registry.gitlab.com/sonatype-nexus-community/docker-nexus-iq-cli:latest
     variables:
         IQ_URL: http://lifecycle.mycompany.com:8070
         IQ_AUTH: admin:admin123
