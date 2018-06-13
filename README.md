@@ -11,14 +11,12 @@ evaluate-build:
     variables:
         IQ_URL: http://lifecycle.mycompany.com:8070
         IQ_AUTH: admin:admin123
-        IQ_STAGE: build
         IQ_APPID: awesomeApp
+        IQ_STAGE: build
     script:
         - evaluate
     after_script:
         - gitlab
-    only:
-        - master
 ```
 
 ## The Fine Print
