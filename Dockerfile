@@ -14,7 +14,7 @@
 
 ARG iq_cli_version
 
-FROM registry.gitlab.com/sonatype-nexus-community/docker-nexus-iq-cli:${iq_cli_version}
+FROM registry.gitlab.com/HokieGeek/docker-nexus-iq-cli:${iq_cli_version}
 
 COPY gitlab /usr/local/bin/
 

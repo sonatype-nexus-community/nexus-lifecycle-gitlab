@@ -7,7 +7,7 @@ This docker image is designed to be used as a Gitlab Runner for performing [Sona
 ```yaml
 evaluate-build:
     stage: test
-    image: registry.gitlab.com/sonatype-nexus-community/nexus-lifecycle-gitlab:latest
+    image: registry.gitlab.com/HokieGeek/nexus-lifecycle-gitlab:latest
     variables:
         IQ_URL: http://lifecycle.mycompany.com:8070
         IQ_AUTH: admin:admin123
