@@ -12,10 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG iq_cli_version
+ARG IQ_VERSION
 
-FROM registry.gitlab.com/hokiegeek/docker-nexus-iq-cli:${iq_cli_version}
+FROM sonatype/nexus-iq-server:${IQ_VERSION}
 
-COPY gitlab /usr/local/bin/
+FROM openjdk:8-jre-alpine
+
+RUN apk add --no-cache bash curl
+
+COPY --from=0 /opt/sonatype/nexus-iq-server/nexus-iq-cli*.jar /opt/nexus-iq-cli.jar
+
+RUN mkdir -p /workspace
+
+VOLUME /workspace
+
+WORKDIR /workspace
+
+COPY evaluate gitlab /usr/local/bin/
+
+USER nobody
 
 ENTRYPOINT []

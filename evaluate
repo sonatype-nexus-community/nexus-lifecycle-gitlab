@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Copyright (c) 2018-present Sonatype, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+while (( $# > 0 )); do
+    case $1 in
+    -*)
+        case $1 in
+        -s|--server-url) has_url=1 ;;
+        -a|--authentication) has_auth=1 ;;
+        -t|--stage) has_stage=1 ;;
+        -i|--application-id) has_appid=1 ;;
+        esac
+
+        OPTS+=("$1 $2")
+        shift
+        ;;
+    *) ARGS+=("$1") ;;
+    esac
+    shift
+done
+
+[[ -n ${IQ_URL} && -z ${has_url} ]] && OPTS+=("--server-url ${IQ_URL}")
+[[ -n ${IQ_AUTH} && -z ${has_auth} ]] && OPTS+=("--authentication ${IQ_AUTH}")
+[[ -n ${IQ_STAGE} && -z ${has_stage} ]] && OPTS+=("--stage ${IQ_STAGE}")
+[[ -n ${IQ_APPID} && -z ${has_appid} ]] && OPTS+=("--application-id ${IQ_APPID}")
+
+java -jar /opt/nexus-iq-cli.jar ${OPTS[@]} ${ARGS[@]:-"."} | tee evaluation.out
+
+exit ${PIPESTATUS[0]}
