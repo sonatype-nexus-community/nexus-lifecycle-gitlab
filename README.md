@@ -1,6 +1,6 @@
 ## nexus-lifecycle-gitlab
 
-This docker image is designed to be used as a Gitlab Runner for performing [Sonatype Nexus Lifecycle](https://www.sonatype.com/nexus-lifecycle "Would you like to know more?") evaluations.
+This Docker image is designed to be used as a GitLab Runner for performing [Sonatype Nexus Lifecycle](https://www.sonatype.com/nexus-lifecycle "Would you like to know more?") evaluations.
 
 ## Example runner
 
