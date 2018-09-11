@@ -18,6 +18,8 @@ usage() {
     echo "USAGE: ${0##*/} [--output FILENAME] [--no-issues]"
 }
 
+scan_output="evaluation.out"
+
 while (( $# > 0 )); do
     case $1 in
         --no-issues) show_issues=false ;;
