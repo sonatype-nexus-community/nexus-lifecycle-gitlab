@@ -1,3 +1,7 @@
+:no_entry: WARNING: DEPRECATED
+> This implementation has been deprecated in favor of the official Sonatype GitLab plugin.
+> Read more here: https://help.sonatype.com/integrations/nexus-and-continuous-integration/nexus-iq-for-gitlab-ci
+
 ## nexus-lifecycle-gitlab
 
 This Docker image is designed to be used as a GitLab Runner for performing [Sonatype Nexus Lifecycle](https://www.sonatype.com/nexus-lifecycle "Would you like to know more?") evaluations.
